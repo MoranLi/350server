@@ -1,10 +1,18 @@
 var express = require('express')
 var bodyParser = require('body-parser')
 var firebase = require('firebase')
+var fs = require('file-system')
+var path = require('path')
+var fileUpload = require('express-fileupload');
 
 var app = express()
 
 app.use(bodyParser.urlencoded({extended:true}))
+app.use(bodyParser.json());
+
+app.use(fileUpload());
+
+app.use('/image', express.static(path.join(__dirname, 'image')))
 
 var config = {
   apiKey: "AIzaSyA_65TBj-GvJRjrsCQeTaL-MZFeFw6XjhI",
@@ -14,9 +22,8 @@ var config = {
   storageBucket: "project-407f3.appspot.com",
   messagingSenderId: "874447698406"
 };
-const Firebase = firebase.initializeApp(config);
-const db = Firebase.database();
-const storage = Firebase.storage().ref()
+const Firebase = firebase.initializeApp(config)
+const db = Firebase.database()
 
 app.listen(8888, function(){
   console.log("yale camp server start");
@@ -24,7 +31,7 @@ app.listen(8888, function(){
 
 app.get('/',function(request,responce){
   var itemList = []
-  var itemsDB = db.ref('/items/-L8ZA_HeEu6k4iG49E7q')
+  var itemsDB = db.ref('/items')
   console.log("start load item");
   itemsDB.once('value').then(function(dataSnapshot){
       var data = dataSnapshot.val();
@@ -41,22 +48,104 @@ app.get('/',function(request,responce){
   })
 })
 
-app.post('/',function(request, reqponce){
-  var itemsDB = db.ref('/items/-L8ZA_HeEu6k4iG49E7q')
-  var image = req.body.files.image
-
+app.post('/',function(request, responce){
+  var images = request.files.images
+  db.ref('/id').once('value').then(function(current){
+    var currentId = current.val().current
+    fs.writeFile("./image/"+images.name,images.data,(err) => {
+      if(err){
+        console.log(err);
+        responce.send(err)
+      }
+      else {
+        var newItem = {
+          itemDescription: request.body.description,
+          itemImageAlt: "placeholder",
+          itemImageSrc: "./image/"+images.name,
+          itemPrice: request.body.price,
+          id: currentId
+        }
+        db.ref('/items/'+currentId).set(newItem).then(() => {
+          db.ref().update({
+            '/id': {
+              current: currentId+1
+            }
+          }).then(() => {
+            responce.send("success")
+          }).catch((err) => {
+            console.log(err);
+            responce.send(err)
+          })
+        }).catch((err) => {
+          console.log(err);
+          responce.send(err)
+        })
+      }
+    })
+  }).catch(function(err){
+      console.log(err);
+      responce.send(err)
+  })
 })
 
-app.get('/:id',function(request,responce){
-
-})
-
-app.post('/:id',function(request, reqponce){
-
+app.post('/:id',function(request, responce){
+  if(request.files.images) {
+    var images = request.files.images
+    fs.writeFile("./image/"+images.name,images.path,(err) => {
+      if(err){
+        responce.send(err)
+      }
+      else {
+        db.ref('/items/'+request.params.id).once('value').then((data) =>{
+          var oldData = data.val()
+          var newItem = {
+            itemDescription: request.body.description ? request.body.description : oldData.itemDescription,
+            itemImageAlt: "placeholder",
+            itemImageSrc: "./image/"+images.name,
+            itemPrice: request.body.price ? request.body.price : oldData.itemPrice,
+            id: request.params.id
+          }
+          db.ref('/items/'+request.params.id).set(newItem).then(() => {
+            responce.send("success")
+          }).catch((err) => {
+            responce.send(err)
+          })
+        }).catch(function(err){
+          console.log("fail load item");
+          responce.send(err)
+        })
+      }
+    })
+  }
+  else {
+    db.ref('/items/'+request.params.id).once('value').then((data) =>{
+      var oldData = data.val()
+      var newItem = {
+        itemDescription: request.body.description ? request.body.description : oldData.itemDescription,
+        itemImageAlt: "placeholder",
+        itemImageSrc: oldData.itemImageSrc,
+        itemPrice: request.body.price ? request.body.price : oldData.itemPrice,
+        id: request.params.id
+      }
+      db.ref('/items/'+request.params.id).set(newItem).then(() => {
+        responce.send("success")
+      }).catch((err) => {
+        responce.send(err)
+      })
+    }).catch(function(err){
+      console.log("fail load item");
+      responce.send(err)
+    })
+  }
 })
 
 app.delete('/:id',function(request,responce){
-
+  db.ref('/items/'+request.params.id).remove().then(
+    responce.send("delete success")
+  ).catch(function(err){
+    console.log("fail load item");
+    responce.send(err)
+  })
 })
 
 
