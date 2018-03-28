@@ -92,7 +92,7 @@ app.post('/',function(request, responce){
 })
 
 app.post('/:id',function(request, responce){
-  if(request.body.images) {
+  if(request.files.images) {
     var images = request.files.images
     fs.writeFile("./image/"+images.name,images.data,(err) => {
       if(err){
