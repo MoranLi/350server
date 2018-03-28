@@ -25,7 +25,7 @@ var config = {
 const Firebase = firebase.initializeApp(config)
 const db = Firebase.database()
 
-app.listen(8888, function(){
+app.listen(process.env.PORT, process.env.IP, function(){
   console.log("yale camp server start");
 })
 
