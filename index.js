@@ -52,6 +52,7 @@ app.get('/',function(request,responce){
 
 app.post('/',function(request, responce){
   var images = request.body.images
+  console.log(images)
   db.ref('/id').once('value').then(function(current){
     var currentId = current.val().current
     fs.writeFile("./image/"+images.name,images.data,(err) => {
@@ -93,7 +94,7 @@ app.post('/',function(request, responce){
 app.post('/:id',function(request, responce){
   if(request.body.images) {
     var images = request.files.images
-    fs.writeFile("./image/"+images.name,images.path,(err) => {
+    fs.writeFile("./image/"+images.name,images.data,(err) => {
       if(err){
         responce.send(err)
       }
