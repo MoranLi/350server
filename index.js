@@ -38,6 +38,10 @@ app.listen(process.env.PORT, process.env.IP, function(){
 })
 
 app.get('/',function(request,responce){
+  responce.setHeader("Access-Control-Allow-Origin", "*");
+  responce.setHeader("Access-Control-Allow-Credentials", "true");
+  responce.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+  responce.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
   var itemList = []
   var itemsDB = db.ref('/items')
   console.log("start load item");
@@ -57,6 +61,10 @@ app.get('/',function(request,responce){
 })
 
 app.post('/',function(request, responce){
+  responce.setHeader("Access-Control-Allow-Origin", "*");
+  responce.setHeader("Access-Control-Allow-Credentials", "true");
+  responce.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+  responce.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
   var images = request.files.images
   db.ref('/id').once('value').then(function(current){
     var currentId = current.val().current
@@ -97,6 +105,10 @@ app.post('/',function(request, responce){
 })
 
 app.post('/:id',function(request, responce){
+  responce.setHeader("Access-Control-Allow-Origin", "*");
+  responce.setHeader("Access-Control-Allow-Credentials", "true");
+  responce.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+  responce.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
   if(request.files.images) {
     var images = request.files.images
     fs.writeFile("./image/"+images.name,images.path,(err) => {
@@ -148,6 +160,10 @@ app.post('/:id',function(request, responce){
 })
 
 app.delete('/:id',function(request,responce){
+  responce.setHeader("Access-Control-Allow-Origin", "*");
+  responce.setHeader("Access-Control-Allow-Credentials", "true");
+  responce.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+  responce.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
   db.ref('/items/'+request.params.id).remove().then(
     responce.send("delete success")
   ).catch(function(err){
