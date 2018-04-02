@@ -64,7 +64,7 @@ app.post('/',function(request, responce){
         var newItem = {
           itemDescription: request.body.description,
           itemImageAlt: "placeholder",
-          itemImageSrc: "server350.herokuapp.com/image/"+images.name,
+          itemImageSrc: "http://server350.herokuapp.com/image/"+images.name,
           itemPrice: request.body.price,
           id: currentId
         }
@@ -104,7 +104,7 @@ app.post('/:id',function(request, responce){
           var newItem = {
             itemDescription: request.body.description ? request.body.description : oldData.itemDescription,
             itemImageAlt: "placeholder",
-            itemImageSrc: "server350.herokuapp.com/image/"+images.name,
+            itemImageSrc: "http://server350.herokuapp.com/image/"+images.name,
             itemPrice: request.body.price ? request.body.price : oldData.itemPrice,
             id: request.params.id
           }
