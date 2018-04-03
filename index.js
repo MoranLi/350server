@@ -91,6 +91,15 @@ app.post('/',function(request, responce){
   })
 })
 
+app.get(':/id',function(request, responce){
+  db.ref('/items/'+request.params.id).once('value').then((data) => {
+    responce.send(data)
+  }).catch(function(err){
+      console.log(err);
+      responce.send(err)
+  })
+})
+
 app.post('/:id',function(request, responce){
   if(request.files.images) {
     var images = request.files.images
