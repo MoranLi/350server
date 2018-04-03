@@ -27,7 +27,7 @@ var config = {
 const Firebase = firebase.initializeApp(config)
 const db = Firebase.database()
 
-app.listen(process.env.PORT, process.env.IP, function(){
+app.listen(/*process.env.PORT, process.env.IP*/8888, function(){
   console.log("yale camp server start");
 })
 
@@ -160,5 +160,42 @@ app.delete('/:id',function(request,responce){
   })
 })
 
+app.post('/:id/comment',function(request, responce){
+  db.ref('/items/'+request.params.id).once('value').then((data) => {
+    var daat = data.val()
+    var comments = daat.comment
+    comments.push([request.body.comment, request.body.username])
+    daat.comment = comments
+    db.ref('/items/'+request.params.id).set(daat).then(() => {
+      responce.send("success")
+    }).catch((err) => {
+      responce.send(err)
+    })
+  }).catch(function(err){
+    console.log("fail load item");
+    responce.send(err)
+  })
+})
+
+app.delete('/:id/comment/:commentid',function(request, responce){
+  db.ref('/items/'+request.params.id).once('value').then((data) => {
+    var daat = data.val()
+    var comments = daat.comment
+    if(comments[request.params.commentid][1] !== request.body.username){
+      responce.send("can not delete other user`s comment")
+      return;
+    }
+    comments.splice(request.params.commentid,1)
+    daat.comment = comments
+    db.ref('/items/'+request.params.id).set(daat).then(() => {
+      responce.send("success")
+    }).catch((err) => {
+      responce.send(err)
+    })
+  }).catch(function(err){
+    console.log("fail load item");
+    responce.send(err)
+  })
+})
 
 
