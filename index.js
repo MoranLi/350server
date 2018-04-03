@@ -91,7 +91,7 @@ app.post('/',function(request, responce){
   })
 })
 
-app.get(':/id',function(request, responce){
+app.get('/:id',function(request, responce){
   db.ref('/items/'+request.params.id).once('value').then((data) => {
     responce.send(data)
   }).catch(function(err){
